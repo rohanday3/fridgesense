@@ -34,7 +34,7 @@ st.write("Latest time: ", latest['date'])
 # get the last 30 days of temperature data using the date "date": "2023-11-08 14:27:01"
 last1000 = ref.order_by_key().limit_to_last(1000).get()
 # make a dataframe from the data with date and temperature columns
-df = pd.DataFrame(list(last1000))
+df = pd.DataFrame.from_records(list(last1000))
 df['date'] = pd.to_datetime(df['date'])
 # limit the dataframe to the last 30 days
 df = df[df['date'] > pd.Timestamp.now() - pd.Timedelta(days=30)]
