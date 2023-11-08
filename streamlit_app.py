@@ -52,9 +52,9 @@ fig_current = go.Figure(go.Indicator(
                  {'range': [8, 10], 'color': "orange"}],
              'threshold' : {'line': {'color': "black", 'width': 5}, 'thickness': 0.75, 'value': latest['temperature']}}))
 
-fig_current.update_layout(title='Current Temperature', font_size=16)
+fig_current.update_layout(autosize=True,title='Current Temperature', font_size=16)
 
-st.plotly_chart(fig_current)
+st.plotly_chart(fig_current, use_container_width=True)
 
 # get the last 30 days of temperature data using the date "date": "2023-11-08 14:27:01"
 all_records = ref.order_by_key().get()
@@ -81,16 +81,16 @@ df_daily = df.resample('D').mean()
 
 fig = px.line(df, x=df.index, y='temperature', labels={'x':'Date', 'y':'Temperature (C)', 'title':'Temperature History'})
 
-fig.update_layout(title='Temperature History', xaxis_title='Date', yaxis_title='Temperature (C)')
+fig.update_layout(autosize=True,title='Temperature History', xaxis_title='Date', yaxis_title='Temperature (C)')
 
 st.header('Temperature History')
 
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 fig_curved = go.Figure()
 
 fig_curved.add_trace(go.Scatter(x=df_daily.index, y=df_daily['temperature'], mode='lines', line_shape='spline', name='temperature'))
 
-fig_curved.update_layout(title='Average Daily Temperature History', xaxis_title='Date', yaxis_title='Temperature (C)')
+fig_curved.update_layout(autosize=True,title='Average Daily Temperature History', xaxis_title='Date', yaxis_title='Temperature (C)')
 
-st.plotly_chart(fig_curved)
+st.plotly_chart(fig_curved, use_container_width=True)
