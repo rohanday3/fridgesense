@@ -56,3 +56,14 @@ last30 = ref.order_by_key().limit_to_last(720).get()
 last30 = list(last30.values())
 last30 = sorted(last30, key=lambda x: x['date'])
 st.line_chart([x['temperature'] for x in last30])
+
+# display a line chart of the average temperature, humidity, and pressure per day over the last month
+last30 = ref.order_by_key().limit_to_last(720).get()
+last30 = list(last30.values())
+# remove the time from the date and get the average for each day
+for x in last30:
+    x['date'] = x['date'].split(' ')[0]
+last30 = sorted(last30, key=lambda x: x['date'])
+st.line_chart([x['temperature'] for x in last30])
+st.line_chart([x['humidity'] for x in last30])
+st.line_chart([x['pressure'] for x in last30])
