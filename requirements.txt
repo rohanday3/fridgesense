@@ -1,2 +1,2 @@
-firebase_admin==6.2.0
-streamlit==1.28.1
+firebase_admin
+streamlit
