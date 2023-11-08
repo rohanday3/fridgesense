@@ -31,16 +31,14 @@ st.write("Latest humidity: ", latest['humidity'])
 st.write("Latest pressure: ", latest['pressure'])
 st.write("Latest time: ", latest['date'])
 
-# get the last 30 days of temperature data using the date
-last30 = ref.order_by_child('date').limit_to_last(30).get()
+# get the last 30 days of temperature data using the date "date": "2023-11-08 14:27:01"
+last1000 = ref.order_by_key().limit_to_last(1000).get()
 # make a dataframe from the data with date and temperature columns
-df = pd.DataFrame(last30)
+df = pd.DataFrame(last1000)
 df['date'] = pd.to_datetime(df['date'])
+# limit the dataframe to the last 30 days
+df = df[df['date'] > pd.Timestamp.now() - pd.Timedelta(days=30)]
 df = df.set_index('date')
 st.line_chart(df['temperature'], key='temp', use_container_width=True, height=300, width=300, title='Temperature', x_axis='Date', y_axis='Temperature (C)', help='Temperature over the last month')
 
-# Resample the DataFrame to a daily frequency and calculate the mean temperature for each day
-df_daily = df.resample('D').mean()
-
-# Pass this resampled DataFrame to the st.line_chart function
-st.line_chart(df_daily['temperature'], key='temp', use_container_width=True, height=300, width=300, title='Average Daily Temperature', x_axis='Date', y_axis='Temperature (C)', help='Average temperature per day over the last month')
+# display a line chart of the average temperature per day over the last month
