@@ -3,6 +3,7 @@ import streamlit as st
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
+import pandas as pd
 
 # Initialize firebase app with credentials
 cred = credentials.Certificate("fridgemon-355420-b1b55a0a251b.json")
@@ -30,40 +31,16 @@ st.write("Latest humidity: ", latest['humidity'])
 st.write("Latest pressure: ", latest['pressure'])
 st.write("Latest time: ", latest['date'])
 
-# display the average temperature, humidity, and pressure over the last 24 hours
-last24 = ref.order_by_key().limit_to_last(24).get()
-last24 = list(last24.values())
-avg_temp = sum([x['temperature'] for x in last24]) / len(last24)
-avg_hum = sum([x['humidity'] for x in last24]) / len(last24)
-avg_pres = sum([x['pressure'] for x in last24]) / len(last24)
-st.write("Average temperature: ", avg_temp)
-st.write("Average humidity: ", avg_hum)
-st.write("Average pressure: ", avg_pres)
+# get the last 30 days of temperature data using the date
+last30 = ref.order_by_child('date').limit_to_last(30).get()
+# make a dataframe from the data with date and temperature columns
+df = pd.DataFrame(last30)
+df['date'] = pd.to_datetime(df['date'])
+df = df.set_index('date')
+st.line_chart(df['temperature'], key='temp', use_container_width=True, height=300, width=300, title='Temperature', x_axis='Date', y_axis='Temperature (C)', help='Temperature over the last month')
 
-# display the average temperature, humidity, and pressure over the last 7 days
-last7 = ref.order_by_key().limit_to_last(168).get()
-last7 = list(last7.values())
+# Resample the DataFrame to a daily frequency and calculate the mean temperature for each day
+df_daily = df.resample('D').mean()
 
-avg_temp = sum([x['temperature'] for x in last7]) / len(last7)
-avg_hum = sum([x['humidity'] for x in last7]) / len(last7)
-avg_pres = sum([x['pressure'] for x in last7]) / len(last7)
-st.write("Average temperature: ", avg_temp)
-st.write("Average humidity: ", avg_hum)
-st.write("Average pressure: ", avg_pres)
-
-# display a line chart of the temperature over the last month
-last30 = ref.order_by_key().limit_to_last(720).get()
-last30 = list(last30.values())
-last30 = sorted(last30, key=lambda x: x['date'])
-st.line_chart([x['temperature'] for x in last30])
-
-# display a line chart of the average temperature, humidity, and pressure per day over the last month
-last30 = ref.order_by_key().limit_to_last(720).get()
-last30 = list(last30.values())
-# remove the time from the date and get the average for each day
-for x in last30:
-    x['date'] = x['date'].split(' ')[0]
-last30 = sorted(last30, key=lambda x: x['date'])
-st.line_chart([x['temperature'] for x in last30])
-st.line_chart([x['humidity'] for x in last30])
-st.line_chart([x['pressure'] for x in last30])
+# Pass this resampled DataFrame to the st.line_chart function
+st.line_chart(df_daily['temperature'], key='temp', use_container_width=True, height=300, width=300, title='Average Daily Temperature', x_axis='Date', y_axis='Temperature (C)', help='Average temperature per day over the last month')
