@@ -166,7 +166,10 @@ class FridgeMonitor:
         while True:
             self.sensor_fetch()
             self.sql_log(self.temperature, self.humidity, self.pressure)
-            self.firebase_log(self.temperature, self.humidity, self.pressure)
+            try:
+                self.firebase_log(self.temperature, self.humidity, self.pressure)
+            except:
+                print("Firebase error")
             if self.temperature >= self.threshold_lower and self.temperature <= self.threshold_upper:
                 if self.DEBUG:
                     print("Temperature is normal")
