@@ -14,9 +14,9 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 
-cred = credentials.Certificate("/usr/local/bin/fridgemon/fridgemon-355420-firebase-adminsdk-xnf5p-3bff4c7a21.json")
+cred = credentials.Certificate("")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': 'https://fridgemon-355420-default-rtdb.firebaseio.com/'
+    'databaseURL': ''
 })
 ref = db.reference('/')
 
@@ -30,8 +30,8 @@ import smbus2
 # --------- Email Settings ---------
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
-GMAIL_USERNAME = 'fridgealert7@gmail.com'
-GMAIL_PASSWORD = 'jiutxeeyeidktczx'
+GMAIL_USERNAME = ''
+GMAIL_PASSWORD = ''
 EMAIL_TEMPLATE = '/usr/local/bin/fridgemon/index.html'
 # ---------------------------------
 
@@ -42,7 +42,7 @@ MINUTES_BETWEEN_READS = 10
 MINUTES_BETWEEN_ALERTS = 60
 threshold_upper = 9
 threshold_lower = 2
-sendTo = ['rohanday4@gmail.com', 'effinghampharmacy@telkomsa.net', 'krsna945@gmail.com']
+sendTo = ['',]
 # ---------------------------------
 
 # Get email body html content from a file
