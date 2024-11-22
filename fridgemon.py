@@ -14,9 +14,9 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 
-cred = credentials.Certificate("")
+cred = credentials.Certificate("/usr/local/bin/fridgemon/fridgemon-355420-firebase-adminsdk-xnf5p-3bff4c7a21.json")
 firebase_admin.initialize_app(cred, {
-    'databaseURL': ''
+    'databaseURL': 'https://fridgemon-355420-default-rtdb.firebaseio.com/'
 })
 ref = db.reference('/')
 
@@ -42,7 +42,7 @@ MINUTES_BETWEEN_READS = 10
 MINUTES_BETWEEN_ALERTS = 60
 threshold_upper = 9
 threshold_lower = 2
-sendTo = ['',]
+sendTo = ['email1@domain.com', 'email2@domain.com']
 # ---------------------------------
 
 # Get email body html content from a file
@@ -70,7 +70,11 @@ class Emailer:
 
         #Send Email & Exit
         session.login(GMAIL_USERNAME, GMAIL_PASSWORD)
-        session.sendmail(GMAIL_USERNAME, recipients, msg.as_string())
+        try:
+            session.sendmail(GMAIL_USERNAME, recipients, msg.as_string())
+        except Exception as e:
+            print(f"Error sending email: {e}")
+
         session.quit()
 
 class FridgeMonitor:
@@ -133,12 +137,15 @@ class FridgeMonitor:
         mydate = datetime.utcnow()
         mydatetime = mydate.strftime("%Y-%m-%d %H:%M:%S")
         sensor_ref = ref.child('sensor')
-        sensor_ref.push({
-            'date': mydatetime,
-            'temperature': temperature,
-            'humidity': humidity,
-            'pressure': pressure
-        })
+        try:
+            sensor_ref.push({
+                'date': mydatetime,
+                'temperature': temperature,
+                'humidity': humidity,
+                'pressure': pressure
+            })
+        except Exception as e:
+            print(f"Firebase error: {e}")
 
     def send_alert(self, temperature, alert_type):
         # dictionary of strings for different alert titles
@@ -166,10 +173,7 @@ class FridgeMonitor:
         while True:
             self.sensor_fetch()
             self.sql_log(self.temperature, self.humidity, self.pressure)
-            try:
-                self.firebase_log(self.temperature, self.humidity, self.pressure)
-            except:
-                print("Firebase error")
+            self.firebase_log(self.temperature, self.humidity, self.pressure)
             if self.temperature >= self.threshold_lower and self.temperature <= self.threshold_upper:
                 if self.DEBUG:
                     print("Temperature is normal")
@@ -213,6 +217,4 @@ def handle_refresh_request(event):
 if __name__ == "__main__":
     # Listen for changes in the refresh_request node
     fridge_monitor = FridgeMonitor()
-    refresh_ref = ref.child('refresh_request')
-    refresh_ref.listen(handle_refresh_request)
     fridge_monitor.run()
