@@ -1,0 +1,13 @@
+[Unit]
+Description=Fridge Monitor Daemon
+After=network.service
+
+[Service]
+ExecStart=/usr/local/bin/fridgemon/main.sh
+User=pi
+WorkingDirectory=/usr/local/bin/fridgemon
+Environment="PYTHONPATH=$PYTHONPATH:/home/pi/.local/lib/python3.7/site-packages/"
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
